@@ -19,7 +19,7 @@ Ce dépôt contient le compte-rendu du TP sur les machines à vecteurs de suppor
 ## Instructions de compilation
 
 Pour générer le PDF à partir du fichier LaTeX, suivez ces étapes :
-
+### Compiler le fichier \LaTeX{}
 1. **Installer \LaTeX{} :**
    - Si vous n'avez pas \LaTeX{} installé sur votre machine, vous pouvez le télécharger à partir de [TeX Live](https://www.tug.org/texlive/) ou [MiKTeX](https://miktex.org/).
    - Alternativement, vous pouvez utiliser un service en ligne comme [Overleaf](https://www.overleaf.com/) qui permet de travailler directement dans le navigateur sans installation.
