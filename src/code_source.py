@@ -1,8 +1,9 @@
+
 #%%
+# Chargement des bibliothèques 
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.svm import SVC
-
 from svm_source import *
 from sklearn import svm
 from sklearn import datasets
@@ -55,7 +56,7 @@ print('Score de généralisation pour noyau linéaire: train = %.2f, test = %.2f
 # GridSearch pour le noyau polynomial avec paramètres C, gamma, et degree
 Cs = list(np.logspace(-3, 3, 5))
 gammas = 10. ** np.arange(1, 2)
-degrees = np.r_[ 2, 3]
+degrees = np.r_[ 1,2, 3]
 
 parameters = {'kernel': ['poly'], 'C': Cs, 'gamma': gammas, 'degree': degrees}
 
@@ -109,76 +110,61 @@ plt.show()
 
 
 
+
+###############################################################################
+#                         Classification de visages
+###############################################################################
+"""
+The dataset used in this example is a preprocessed excerpt
+of the "Labeled Faces in the Wild", aka LFW_:
+
+  http://vis-www.cs.umass.edu/lfw/lfw-funneled.tgz (233MB)
+
+  _LFW: http://vis-www.cs.umass.edu/lfw/
+"""
+
 #%%
-###############################################################################
-#               Face Recognition Task
-###############################################################################
-"""
-The dataset used in this example is a preprocessed excerpt
-of the "Labeled Faces in the Wild", aka LFW_:
-
-  http://vis-www.cs.umass.edu/lfw/lfw-funneled.tgz (233MB)
-
-  _LFW: http://vis-www.cs.umass.edu/lfw/
-"""
-
-####################################################################
-
-###############################################################################
-#               Face Recognition Task
-###############################################################################
-"""
-The dataset used in this example is a preprocessed excerpt
-of the "Labeled Faces in the Wild", aka LFW_:
-
-  http://vis-www.cs.umass.edu/lfw/lfw-funneled.tgz (233MB)
-
-  _LFW: http://vis-www.cs.umass.edu/lfw/
-"""
-
-####################################################################
-# Download the data and unzip; then load it as numpy arrays
+# Chargement des données 
 lfw_people = fetch_lfw_people(min_faces_per_person=70, resize=0.4,
                               color=True, funneled=False, slice_=None,
                               download_if_missing=True)
 # data_home='.'
-
-# introspect the images arrays to find the shapes (for plotting)
+#%%
+# Examinez les tableaux d'images pour en déterminer les dimensions 
 images = lfw_people.images
 n_samples, h, w, n_colors = images.shape
 
-# the label to predict is the id of the person
+# L'étiquette à prédire est l'identifiant de la personne
 target_names = lfw_people.target_names.tolist()
 
-####################################################################
-# Pick a pair to classify such as
+#%%
+# Choisissez une paire à classifier, par exemple
 names = ['Tony Blair', 'Colin Powell']
 # names = ['Donald Rumsfeld', 'Colin Powell']
-
+#%%
 idx0 = (lfw_people.target == target_names.index(names[0]))
 idx1 = (lfw_people.target == target_names.index(names[1]))
 images = np.r_[images[idx0], images[idx1]]
 n_samples = images.shape[0]
 y = np.r_[np.zeros(np.sum(idx0)), np.ones(np.sum(idx1))].astype(int)
 
-# plot a sample set of the data
+# Tracez un ensemble d'échantillons des données
 plot_gallery(images, np.arange(12))
 plt.show()
 
-# %%
-####################################################################
-# Extract features
 
-# features using only illuminations
+# Extraire les caractéristiques
+#%%
+# Caractéristiques utilisant uniquement les illuminations.
 X = (np.mean(images, axis=3)).reshape(n_samples, -1)
 
-# # or compute features using colors (3 times more features)
+# # Ou calculez les caractéristiques en utilisant les couleurs (3 fois plus de caractéristiques)
 # X = images.copy().reshape(n_samples, -1)
-
+#%%
 # Scale features
 X -= np.mean(X, axis=0)
 X /= np.std(X, axis=0)
-# %%
+
 #%%
 ####################################################################
 # Split data into a half training and half test set
@@ -193,12 +179,12 @@ X_train, X_test = X[train_idx, :], X[test_idx, :]
 y_train, y_test = y[train_idx], y[test_idx]
 images_train, images_test = images[
     train_idx, :, :, :], images[test_idx, :, :, :]
-# %%
-#%% [markdown]
-####################################################################
+
+
+######################### Question 04 #########################################
 # Quantitative evaluation of the model quality on the test set
 #%% [code]
-# Q3
+#L'étiquette à prédire est l'identifiant de la personne 
 print("--- Linear kernel ---")
 print("Fitting the classifier to the training set")
 t0 = time()
@@ -210,14 +196,14 @@ scores = []
 # Boucle sur les valeurs de C
 for C in Cs:
     # Créer un classificateur SVM avec le noyau linéaire et le paramètre C
-    clf = svm.SVC(kernel='linear', C=C)  # TODO: Créez le classificateur SVM
+    clf = svm.SVC(kernel='linear', C=C)  #Créez le classificateur SVM
     clf.fit(X_train, y_train)  # Entraîner le modèle sur les données d'entraînement
 
     # Prédire les labels pour l'ensemble de test
-    y_pred = clf.predict(X_test)  # TODO: Utilisez le modèle pour prédire sur l'ensemble de test
+    y_pred = clf.predict(X_test)  #Utilisez le modèle pour prédire sur l'ensemble de test
 
     # Calculer le score (précision) et l'ajouter à la liste des scores
-    score = np.mean(y_pred == y_test)  # TODO: Calculez la précision du modèle
+    score = np.mean(y_pred == y_test)  #Calculez la précision du modèle
     scores.append(score)
 
 # Trouver l'indice du meilleur score
@@ -236,14 +222,13 @@ print("Best score: {}".format(np.max(scores)))
 print("Predicting the people names on the testing set")
 t0 = time()
 
-# %%
-#%% [markdown]
+
+
 # predict labels for the X_test images with the best classifier
-#%% [code]
-# clf =  ... TODO
+#%% 
 # Créez un classificateur SVM avec le meilleur paramètre C
 best_C = Cs[ind]  # Utilisez l'indice du meilleur score trouvé précédemment
-clf = svm.SVC(kernel='linear', C=best_C)  # TODO: Créer le classificateur SVM
+clf = svm.SVC(kernel='linear', C=best_C)  #  Créer le classificateur SVM
 clf.fit(X_train, y_train)  # Entraîner le modèle sur les données d'entraînement
 
 print("done in %0.3fs" % (time() - t0))
@@ -251,8 +236,7 @@ print("done in %0.3fs" % (time() - t0))
 print("Chance level : %s" % max(np.mean(y), 1. - np.mean(y)))
 print("Accuracy : %s" % clf.score(X_test, y_test))  # Calculer et afficher la précision du modèle
 
-# %%
-####################################################################
+#%%
 # Qualitative evaluation of the predictions using matplotlib
 
 prediction_titles = [title(y_pred[i], y_test[i], names)
@@ -262,14 +246,13 @@ plot_gallery(images_test, prediction_titles)
 plt.show()
 
 ####################################################################
-# Look at the coefficients
+# jeter un oeil sur le coefficients 
 plt.figure()
 plt.imshow(np.reshape(clf.coef_, (h, w)))
 plt.show()
 
-# %%
-#%% [markdown]
-# Q4
+
+############################ Question 05 ############################
 #%% [code]
 def run_svm_cv(_X, _y):
     _indices = np.random.permutation(_X.shape[0])
@@ -303,12 +286,12 @@ X_noisy = X_noisy[np.random.permutation(X.shape[0])]
 run_svm_cv(X_noisy, y)
 
 
-# %%
-# Q5
+
+#################################### Question 06 ###########################
 #%% [code]
 print("Score après réduction de dimension")
 
-n_components = 20  # jouer avec ce paramètre
+n_components = 100 
 pca = PCA(n_components=n_components).fit(X_noisy)
 
 # Transformation des données bruitées avec PCA
@@ -319,4 +302,6 @@ print(f"Variance expliquée avec {n_components} composantes principales : {np.su
 
 # Application du modèle SVM sur les données réduites
 run_svm_cv(X_noisy_pca, y)  # Utilisation du modèle SVM sur les données réduites par PCA
-# %%
+
+
+
